@@ -4,7 +4,6 @@ typedef struct metadata{
 	time_t created_time;
 	time_t modified_time;
 	size_t size;
-	// for gui - something for is_hidden or is_visible
 }METADATA;	
 typedef struct Folder{
 	char name[100];
