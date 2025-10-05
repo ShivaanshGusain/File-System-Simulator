@@ -17,6 +17,15 @@ FSFile* file_new(const char* name, FOLDER* parent, size_t size) {
         return NULL;
     }
 
+    FSFile* existing = parent->files_head;
+    while (existing) {
+        if (strcmp(existing->name, name) == 0) {
+		printf("Error: File '%s' already exists in folder '%s'.\n", name, parent->name);
+		free(new_file);
+		return NULL;
+	    }
+        existing = existing->next;
+    }
     strncpy(new_file->name, name, 99);
     new_file->name[99] = '\0';
     new_file->parent_folder = parent;
@@ -36,7 +45,6 @@ FSFile* file_new(const char* name, FOLDER* parent, size_t size) {
     printf("File '%s' created successfully in folder '%s'.\n", name, parent->name);
     return new_file;
 }
-
 // Delete file by name
 int file_delete(FOLDER* folder, const char* name) {
     if (!folder) {
@@ -48,6 +56,11 @@ int file_delete(FOLDER* folder, const char* name) {
     while (curr && strcmp(curr->name, name) != 0) curr = curr->next;
     if (!curr) {
         printf("Error: File '%s' not found in folder '%s'.\n", name, folder->name);
+        return 0;
+    }
+
+    if (curr->parent_folder != folder) {
+        printf("Error: File parent mismatch.\n");
         return 0;
     }
 
@@ -68,7 +81,6 @@ int file_rename(FOLDER* folder, const char* old_name, const char* new_name) {
         printf("Error: Folder is NULL.\n");
         return 0;
     }
-
     FSFile* curr = folder->files_head;
     while (curr && strcmp(curr->name, old_name) != 0) curr = curr->next;
     if (!curr) {
@@ -76,6 +88,15 @@ int file_rename(FOLDER* folder, const char* old_name, const char* new_name) {
         return 0;
     }
 
+
+    FSFile* check = folder->files_head;
+	while (check) {
+	    if (check != curr && strcmp(check->name, new_name) == 0) {
+		printf("Error: File '%s' already exists in folder '%s'.\n", new_name, folder->name);
+		return 0;
+	    }
+	    check = check->next;
+    }
     strncpy(curr->name, new_name, 99);
     curr->name[99] = '\0';
     curr->metadata.modified_time = time(NULL);
@@ -91,8 +112,23 @@ int file_move(FSFile* file, FOLDER* new_parent) {
         printf("Error: Invalid file or target folder.\n");
         return 0;
     }
+    if (file->parent_folder == new_parent){
+	printf("New target location is same as the current location\n");
+	return 0;
+    }
 
     FOLDER* old_parent = file->parent_folder;
+    
+
+    FSFile* check_for_similar = new_parent->files_head;
+    while (check_for_similar != NULL){ 
+	if (strcmp(check_for_similar->name , file->name) == 0){
+		printf("Error: File %s already exists in the folder %s \n", file->name, new_parent->name);
+		return 0;
+	}
+	check_for_similar= check_for_similar->next;
+    }   
+
 
     // Remove from old folder
     if (file->prev) file->prev->next = file->next;
@@ -110,8 +146,12 @@ int file_move(FSFile* file, FOLDER* new_parent) {
     new_parent->files_tail = file;
     new_parent->file_count++;
 
+    file->metadata.modified_time= time(NULL);
+
     snprintf(file->relative_path, 500, "%s/%s", new_parent->relative_path, file->name);
+
     printf("File '%s' moved to folder '%s' successfully.\n", file->name, new_parent->name);
+
     return 1;
 }
 
