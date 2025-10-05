@@ -3,7 +3,6 @@
 #include <string.h>
 #include <time.h>
 #include "file_ops.h"
-
 // Create new file
 FSFile* file_new(const char* name, FOLDER* parent, size_t size) {
     if (!parent) {
