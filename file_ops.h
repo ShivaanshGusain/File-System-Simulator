@@ -1,7 +1,7 @@
 #ifndef FILE_OPS_H
 #define FILE_OPS_H
 #include "structure.h"
-#include "folder.h"
+#include "dir_ops.h"
 
 // File operations
 FSFile* file_new(const char* name, FOLDER* parent, size_t size);
