@@ -169,6 +169,6 @@ void file_info(FSFile* file) {
 }
 
 // List files in folder
-void file_list(FOLDER* folder) {
-    folder_list_files(folder);
-}
+// void file_list(FOLDER* folder) {
+//     folder_list_files(folder);
+// }

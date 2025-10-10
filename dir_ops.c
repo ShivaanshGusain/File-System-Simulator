@@ -4,8 +4,8 @@
 #include <time.h>
 #include "dir_ops.h"
 #include "structure.h"
-
-
+#include "filesystem.h"
+#include "resolve.h"
 FOLDER* dir_new(char *name, FOLDER *parent) {
     FOLDER *new_dir = (FOLDER*)malloc(sizeof(FOLDER));
     if (!new_dir) {
@@ -346,3 +346,39 @@ void print_dir_info(FOLDER *dir) {
     printf("Files: %d\n", dir->file_count);
     printf("Folders: %d\n", dir->folder_count);
 }   
+
+
+// Change directory function (like Linux cd command)
+int change_directory(const char* path) {
+    if (!path) {
+        printf("Error: Invalid path.\n");
+        return 0;
+    }
+    
+    // Handle empty path or "~" - go to root
+    if (strlen(path) == 0 || strcmp(path, "~") == 0) {
+        current_folder = root_folder;
+        printf("Changed to root directory\n");
+        return 1;
+    }
+    
+    // Resolve the path
+    FOLDER* target = resolve_dir(path);
+    
+    if (target) {
+        current_folder = target;
+        printf("Changed directory to: %s\n", current_folder->relative_path);
+        return 1;
+    } else {
+        printf("Error: Cannot change to directory '%s'\n", path);
+        return 0;
+    }
+}
+
+// Get current directory path (like pwd in Linux)
+char* get_current_path(void) {
+    if (!current_folder) {
+        return "/";
+    }
+    return current_folder->relative_path;
+}

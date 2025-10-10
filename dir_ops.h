@@ -13,6 +13,12 @@ void rename_folder(FOLDER *root, char *old_name, char *new_name);
 void rmdir_dir(FOLDER *root, char *name);
 //void rmdir_recursive(FOLDER *root, char *name);
 
+
+// like Linux cd
+int change_directory(const char* path);
+char* get_current_path(void);
+
+
 // Display functions
 void print(FOLDER *dir, int level);
 void print_directory(FOLDER *root);
