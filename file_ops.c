@@ -12,7 +12,7 @@ FSFile* file_new(const char* name, FOLDER* parent, size_t size) {
 
     FSFile* new_file = (FSFile*)malloc(sizeof(FSFile));
     if (!new_file) {
-        printf("Error: Memory allocation failed for file.\n");
+        printf("Error: Mem  ory allocation failed for file.\n");
         return NULL;
     }
 

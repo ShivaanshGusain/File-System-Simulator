@@ -158,13 +158,11 @@ void rename_folder(FOLDER *root, char *old_name, char *new_name) {
         return;
     }
 
-    // Check if target is root folder
     if (!target->parent) {
         printf("Cannot rename root folder.\n");
         return;
     }
 
-    // Check if new name already exists in the same parent directory
     FOLDER *sibling = target->parent->first_child;
     while (sibling) {
         if (sibling != target && strcmp(sibling->name, new_name) == 0) {
@@ -175,14 +173,11 @@ void rename_folder(FOLDER *root, char *old_name, char *new_name) {
         sibling = sibling->next_sibling;
     }
 
-    // Update the name
     strcpy(target->name, new_name);
     
-    // Update the relative path
     snprintf(target->relative_path, sizeof(target->relative_path),
              "%s/%s", target->parent->relative_path, new_name);
 
-    // Update modified time of parent
     target->parent->metadata.modified_time = time(NULL);
 
     printf("Folder '%s' renamed to '%s'\n", old_name, new_name);
@@ -198,7 +193,6 @@ void rmdir_dir(FOLDER *root, char *name) {
         return;
     }
 
-    // Check if directory is empty
     if (target->folder_count > 0) {
         printf("Error: Cannot remove '%s' - directory contains %d subfolder(s).\n", 
                name, target->folder_count);
@@ -213,7 +207,6 @@ void rmdir_dir(FOLDER *root, char *name) {
 
     FOLDER *parent = target->parent;
 
-    // Remove from parent's linked list
     if (parent->first_child == target)
         parent->first_child = target->next_sibling;
     if (parent->last_child == target)
@@ -223,72 +216,36 @@ void rmdir_dir(FOLDER *root, char *name) {
     if (target->next_sibling)
         target->next_sibling->prev_sibling = target->prev_sibling;
 
-    // Update parent's folder count
     parent->folder_count--;
     
-    // Update parent's modified time
     parent->metadata.modified_time = time(NULL);
 
-    // Free the directory
     free(target);
 
     printf("Directory '%s' removed successfully.\n", name);
 }
 
-// // Optional: Recursive remove function
-// void rmdir_recursive(FOLDER *root, char *name) {
-//     FOLDER *target = find_dir(root, name);
-//     if (!target || !target->parent) {
-//         printf("Cannot remove root or '%s' not found.\n", name);
-//         return;
-//     }
-
-//     // First remove all files (you'll need to implement this based on your file operations)
-//     while (target->files_head) {
-//         // Remove files - assuming you have a file_delete function
-//         // file_delete(target, target->files_head->name);
-//     }
-
-//     // Recursively remove all subdirectories
-//     while (target->first_child) {
-//         rmdir_recursive(target, target->first_child->name);
-//     }
-
-//     // Now remove the empty directory
-//     rmdir_dir(root, name);
-// }
-
-
-
-
-
-
 
 void print(FOLDER *dir, int level) {
     if (!dir) return;
 
-    // Indentation
     for (int i = 0; i < level; i++) {
         printf("  ");
     }
 
-    // Format creation time
     char time_str[64];
     struct tm *tm_info = localtime(&dir->metadata.created_time);
     strftime(time_str, sizeof(time_str), "%Y-%m-%d %H:%M:%S", tm_info);
 
-    // Print directory metadata
     printf("|- %s  [Created: %s | Size: %zu bytes | Files: %d | Folders: %d]\n", 
            dir->name, time_str, dir->metadata.size, dir->file_count, dir->folder_count);
 
-    // Print files inside this directory
     FSFile *file = dir->files_head;
     while (file) {
         for (int i = 0; i < level + 1; i++) {
             printf("  ");
         }
         
-        // Format file creation time
         struct tm *file_tm_info = localtime(&file->metadata.created_time);
         strftime(time_str, sizeof(time_str), "%Y-%m-%d %H:%M:%S", file_tm_info);
         
@@ -297,7 +254,6 @@ void print(FOLDER *dir, int level) {
         file = file->next;
     }
 
-    // Recurse into subdirectories
     FOLDER *child = dir->first_child;
     while (child) {
         print(child, level + 1);
@@ -315,13 +271,11 @@ void print_directory(FOLDER *root) {
     print(root, 0);
 }
 
-// Additional utility function to print directory path
 void print_path(FOLDER *dir) {
     if (!dir) return;
     printf("Current path: %s\n", dir->relative_path);
 }
 
-// Function to print directory info only (without recursion)
 void print_dir_info(FOLDER *dir) {
     if (!dir) {
         printf("Directory not found.\n");
@@ -348,34 +302,30 @@ void print_dir_info(FOLDER *dir) {
 }   
 
 
-// Change directory function (like Linux cd command)
 int change_directory(const char* path) {
     if (!path) {
         printf("Error: Invalid path.\n");
         return 0;
     }
     
-    // Handle empty path or "~" - go to root
     if (strlen(path) == 0 || strcmp(path, "~") == 0) {
         current_folder = root_folder;
         printf("Changed to root directory\n");
         return 1;
     }
     
-    // Resolve the path
     FOLDER* target = resolve_dir(path);
     
     if (target) {
         current_folder = target;
         printf("Changed directory to: %s\n", current_folder->relative_path);
         return 1;
-    } else {
+    } else { 
         printf("Error: Cannot change to directory '%s'\n", path);
         return 0;
     }
 }
-
-// Get current directory path (like pwd in Linux)
+   
 char* get_current_path(void) {
     if (!current_folder) {
         return "/";
