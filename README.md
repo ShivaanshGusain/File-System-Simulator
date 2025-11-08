@@ -1,4 +1,5 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
 # File_System_Simulator
 
 
@@ -95,3 +96,6 @@ If you have run out of energy or time for your project, put a note at the top of
 =======
 # File-System-Simulator
 >>>>>>> ee608e4 (Created the repo)
+=======
+# File-System-Simulator
+>>>>>>> c24c55078ac87d5638e499f9270f0b76cfd54940
